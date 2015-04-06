@@ -73,6 +73,7 @@ MediaPlayer.rules.PlaybackTimeRule = function () {
                 keepIdx = !!rejected && !hasSeekTarget,
                 currentTime = this.adapter.getIndexHandlerTime(streamProcessor),
                 playbackTime = streamProcessor.playbackController.getTime(),
+                liveStartTime = streamProcessor.playbackController.getLiveStartTime(),
                 rejectedEnd = rejected ? rejected.startTime + rejected.duration : null,
                 useRejected = !hasSeekTarget && rejected && ((rejectedEnd > playbackTime) && (rejected.startTime <= currentTime) || isNaN(currentTime)),
                 range,
@@ -88,6 +89,10 @@ MediaPlayer.rules.PlaybackTimeRule = function () {
             if (isNaN(time)) {
                 callback(new MediaPlayer.rules.SwitchRequest(null, p));
                 return;
+            }
+
+            if (time === 0 && liveStartTime > 0) {
+                time = liveStartTime;
             }
 
             if (seekTarget[streamId]) {
